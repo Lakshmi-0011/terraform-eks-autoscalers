@@ -14,7 +14,7 @@ variable "env" {
 }
 
 variable "eks_version" {
-  type        = number
+  type        = string
   description = "Version of Amazon EKS to use for the cluster."
 }
 

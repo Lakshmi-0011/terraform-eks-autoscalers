@@ -5,7 +5,7 @@ variable "env" {
 
 variable "eks_version" {
   description = "The EKS version to use"
-  type        = number
+  type        = string
 }
 
 variable "private_subnet_ids" {
