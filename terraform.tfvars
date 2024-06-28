@@ -1,7 +1,7 @@
 region = "ap-south-1"
 env = "dev"
 vpc_cidr = "10.5.0.0/16"
-eks_version = "1.29"
+eks_version = 1.29
 privatesub1_cidr = "10.5.1.0/24"
 privatesub2_cidr = "10.5.2.0/24"
 publicsub1_cidr = "10.5.3.0/24"
