@@ -8,5 +8,5 @@ resource "helm_release" "metrics_server" {
 
   values = [file("${path.module}/values/metric-server.yml")]
 
-  //depends_on = [aws_eks_node_group.general]
+  depends_on = [ module.eks_cluster ]
 }

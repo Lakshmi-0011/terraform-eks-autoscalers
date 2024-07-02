@@ -1,18 +1,6 @@
-variable "eip-name" {
-  type = string
-  description = "The name of the elastic ip required for nat gateway"
-  default = "eks-eip"
-}
-
-variable "nat-name" {
-  type = string
-  description = "The name of the nat gateway"
-  default = "eks-nat"
-}
-
-variable "public_subnet_id" {
-  type = string
-  description = "public subnet id for nat gateway creation"
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  type        = list(string)
 }
 
 variable "igw_id" {

@@ -3,6 +3,8 @@ variable "region" {
   description = "Specify the AWS region where you want to create the resources."
 }
 
+
+
 variable "vpc_cidr" {
   type        = string
   description = "CIDR block for the VPC."
@@ -18,47 +20,40 @@ variable "eks_version" {
   description = "Version of Amazon EKS to use for the cluster."
 }
 
-variable "az1" {
-  type        = string
-  description = "Availability Zone 1 for subnet placement."
+variable "subnets" {
+  type = list(object({ 
+    cidr_block        = string
+    availability_zone = string
+    tag_name          = string
+    map_public_ip_on_launch = bool
+  }))
 }
 
-variable "az2" {
-  type        = string
-  description = "Availability Zone 2 for subnet placement."
+variable "desired_size" {
+  type        = number
+  description = "The desired number of instances in the Auto Scaling group of eks nodegroup"
 }
 
-variable "privatesub1_cidr" {
-  type        = string
-  description = "CIDR block for private subnet 1."
+variable "max_size" {
+  type        = number
+  description = "The maximum number of instances in the Auto Scaling group of eks nodegroup"
 }
 
-variable "privatesub2_cidr" {
-  type        = string
-  description = "CIDR block for private subnet 2."
-}
-
-variable "publicsub1_cidr" {
-  type        = string
-  description = "CIDR block for public subnet 1."
-}
-
-variable "publicsub2_cidr" {
-  type        = string
-  description = "CIDR block for public subnet 2."
-}
-
-variable "cluster_autoscaler_role_name" {
-  type = string
-  description = "name of IAM role for cluster autoscaler"
-}
-
-variable "cluster_autoscaler_policy_name" {
-  type = string
-  description = "name of IAM policy for cluster autoscaler"
+variable "min_size" {
+  type        = number
+  description = "The minimum number of instances in the Auto Scaling group of eks nodegroup"
 }
 
 variable "service_account_name" {
   type = string
   description = "name of service account for cluster autoscaler"
+}
+
+variable "cluster_autoscaler_role_name" {
+  type = string
+}
+
+variable "cluster_autoscaler_policy_name" {
+  description = "name for cluster autoscaler policy to be created"
+  type = string
 }

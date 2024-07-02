@@ -1,49 +1,13 @@
-resource "aws_subnet" "private-subnet-1" {
+resource "aws_subnet" "subnet" {
+  count             = length(var.subnets)
+  cidr_block        = var.subnets[count.index].cidr_block
   vpc_id            = var.vpc_id
-  cidr_block        = var.privatesub1_cidr
-  availability_zone = var.az1
+  availability_zone = var.subnets[count.index].availability_zone
+  map_public_ip_on_launch = var.subnets[count.index].map_public_ip_on_launch
 
   tags = {
-    "Name"                            = var.privatesubnet1-name
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/${var.env}-eks-cluster"      = "owned"
-  }
-}
-
-resource "aws_subnet" "private-subnet-2" {
-  vpc_id            = var.vpc_id
-  cidr_block        = var.privatesub2_cidr
-  availability_zone = var.az2
-
-  tags = {
-    "Name"                            = var.privatesubnet2-name
-    "kubernetes.io/role/internal-elb" = "1"
-    "kubernetes.io/cluster/${var.env}-eks-cluster"       = "owned"
-  }
-}
-
-resource "aws_subnet" "public-subnet-1" {
-  vpc_id                  = var.vpc_id
-  cidr_block              = var.publicsub1_cidr
-  availability_zone       = var.az1
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                       = var.publicsubnet1-name
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/${var.env}-eks-cluster"  = "owned"
-  }
-}
-
-resource "aws_subnet" "public-subnet-2" {
-  vpc_id                  = var.vpc_id
-  cidr_block              = var.publicsub2_cidr
-  availability_zone       = var.az2
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                       = var.publicsubnet2-name
-    "kubernetes.io/role/elb"     = "1"
-    "kubernetes.io/cluster/${var.env}-eks-cluster"  = "owned"
+    Name    = var.subnets[count.index].tag_name
+    "kubernetes.io/cluster/${var.env}-eks-cluster" = "owned"
+    "kubernetes.io/role/${var.subnets[count.index].map_public_ip_on_launch ? "elb" : "internal-elb"}" = "1"
   }
 }

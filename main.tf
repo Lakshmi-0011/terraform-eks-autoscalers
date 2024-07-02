@@ -3,16 +3,11 @@ module "vpc" {
   vpc_cidr = var.vpc_cidr
 }
 
-module "subnet" {
+module "subnets" {
   source = "./modules/network/subnets"
   vpc_id = module.vpc.vpc_id
   env = var.env
-  az1 = var.az1
-  az2 = var.az2
-  privatesub1_cidr = var.privatesub1_cidr
-  privatesub2_cidr = var.privatesub2_cidr
-  publicsub1_cidr = var.publicsub1_cidr
-  publicsub2_cidr = var.publicsub2_cidr
+  subnets = var.subnets
 }
 
 module "igw" {
@@ -22,38 +17,42 @@ module "igw" {
 
 module "nat" {
   source = "./modules/network/nat"
-  public_subnet_id = module.subnet.public_subnet1_id
   igw_id = module.igw.igw_id
-  depends_on = [ module.igw ]
+  public_subnet_ids = module.subnets.public_subnet_ids
 }
 
 module "route-table" {
   source = "./modules/network/route-tables"
-  private_subnet1_id = module.subnet.private_subnet1_id
-  private_subnet2_id = module.subnet.private_subnet2_id
-  public_subnet1_id = module.subnet.public_subnet1_id
-  public_subnet2_id = module.subnet.public_subnet2_id
   vpc_id = module.vpc.vpc_id
+  nat_ids = module.nat.nat_gateway_ids
   igw_id = module.igw.igw_id
-  nat_id = module.nat.nat_gateway_id
+  private_subnet_ids = module.subnets.private_subnet_ids
+  public_subnet_ids = module.subnets.public_subnet_ids
+}
+
+module "templates" {
+  source = "./modules/templates"
+  cluster_autoscaler_policy_name = var.cluster_autoscaler_policy_name
+  env = var.env
+  cluster_autoscaler_role_name = var.cluster_autoscaler_role_name
 }
 
 module "eks_cluster" {
   source = "./modules/eks"
   env = var.env
   eks_version = var.eks_version
-  subnet_ids = [module.subnet.private_subnet1_id, module.subnet.private_subnet2_id, module.subnet.public_subnet1_id, module.subnet.public_subnet2_id]
-  private_subnet_ids = [module.subnet.private_subnet1_id, module.subnet.private_subnet2_id]
+  subnet_ids = module.subnets.subnet_ids
+  private_subnet_ids = module.subnets.private_subnet_ids
+  eks_cluster_role_arn = module.templates.eks_cluster_role_arn
+  eks_cluster_role_name = module.templates.eks_cluster_role_name
+  eks_nodes_role_arn = module.templates.eks_nodes_role_arn
+  eks_nodes_role_name = module.templates.eks_nodes_role_name
+  desired_size = var.desired_size
+  max_size = var.max_size
+  min_size = var.min_size
 }
-
-# output "eks_certification" {
-#   value = module.eks_cluster.certificate_authority
-# }
-
-# output "eks_endpoint" {
-#   value = module.eks_cluster.endpoint
-# }
 
 output "eks_name" {
   value = module.eks_cluster.eks_name
 }
+
